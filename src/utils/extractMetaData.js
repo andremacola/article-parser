@@ -146,7 +146,7 @@ export default (html) => {
   const metadata = extractLdSchema(doc, entry)
 
   if (!metadata.published) {
-    metadata.published = findDate(doc) || ''
+    metadata.published = findDate(doc, metadata) || ''
   }
 
   return metadata
