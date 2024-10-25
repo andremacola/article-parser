@@ -74,7 +74,12 @@ function dateFromContent (element) {
 export default function (doc, metadata) {
   const priorityElements = doc.querySelectorAll('time, [datetime], [itemprop~=datePublished], [itemprop~=dateCreated]')
   for (const el of priorityElements) {
-    const date = el.getAttribute('datetime') || el.getAttribute('content') || dateFromContent(el)
+    const date =
+          el.getAttribute('datetime')
+       || el.getAttribute('content')
+       || el.getAttribute('title')
+       || dateFromContent(el)
+
     if (date) return date
   }
 
