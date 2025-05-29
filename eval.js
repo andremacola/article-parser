@@ -3,7 +3,7 @@
 import { execSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 
-import { slugify } from 'bellajs'
+import { slugify } from '@ndaidong/bellajs'
 
 import { isValid as isValidUrl } from './src/utils/linker.js'
 import { extract, extractFromHtml } from './src/main.js'
@@ -32,6 +32,10 @@ const extractFromFile = async (fpath) => {
     const html = readFileSync(fpath, 'utf8')
     const art = await extractFromHtml(html)
     console.log(art)
+    if (art) {
+      const slug = slugify(art.title)
+      writeFileSync(`evaluation/${slug}.html`, art.content, 'utf8')
+    }
   } catch (err) {
     console.trace(err)
   }
