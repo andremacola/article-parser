@@ -80,7 +80,7 @@ function dateFromContent (element, language) {
 * @returns {string} Date string
 */
 export default function (doc, metadata) {
-  const language = doc.documentElement.lang || 'en'
+  const language = doc.documentElement.lang.toLowerCase() || 'en'
   const priorityElements = doc.querySelectorAll('time, [datetime], [itemprop~=datePublished], [itemprop~=dateCreated]')
   for (const el of priorityElements) {
     const date =
