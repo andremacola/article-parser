@@ -1,23 +1,29 @@
-
 /**
-* Convert date format to YYYY-MM-DD
-*
-* @param {string} dateString
-* @returns {string} YYYY-MM-DD
-*/
-function convertDateFormat (dateString) {
+ * Converts a date format to YYYY-MM-DD.
+ * Specifically handles the DD/MM/YYYY format for the 'pt-br' language.
+ *
+ * @param {string} dateString The date in string format, e.g., "05/12/2024".
+ * @param {string} language The language code, e.g., "pt-br" or "en".
+ * @returns {string} The formatted date as YYYY-MM-DDTHH:mm:ss.
+ */
+function convertDateFormat (dateString, language) {
   const parts = dateString.split('/')
   if (parts.length !== 3) return dateString
 
   let year, month, day
 
-  if (parseInt(parts[0]) > 12) {
+  if (language === 'pt-br') {
     [day, month, year] = parts
   } else {
-    [month, day, year] = parts
+    if (parseInt(parts[0]) > 12) {
+      [day, month, year] = parts
+    } else {
+      [month, day, year] = parts
+    }
   }
 
   year = year.length === 2 ? '20' + year : year
+
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`
 }
 
@@ -50,7 +56,7 @@ function dateFromUrl (url) {
 * @param {Element} element
 * @returns {string|undefined}
 */
-function dateFromContent (element) {
+function dateFromContent (element, language) {
   const datePatterns = [
     /\d{4}-\d{2}-\d{2}/,
     /\d{1,2}\/\d{1,2}\/\d{2,4}/,
@@ -58,7 +64,9 @@ function dateFromContent (element) {
 
   for (const pattern of datePatterns) {
     const match = element.textContent.match(pattern)
-    if (match) return convertDateFormat(match[0])
+    if (match) {
+      return convertDateFormat(match[0], language)
+    }
   }
 
   return undefined
@@ -72,13 +80,14 @@ function dateFromContent (element) {
 * @returns {string} Date string
 */
 export default function (doc, metadata) {
+  const language = doc.documentElement.lang || 'en'
   const priorityElements = doc.querySelectorAll('time, [datetime], [itemprop~=datePublished], [itemprop~=dateCreated]')
   for (const el of priorityElements) {
     const date =
           el.getAttribute('datetime')
        || el.getAttribute('content')
        || el.getAttribute('title')
-       || dateFromContent(el)
+       || dateFromContent(el, language)
 
     if (date) return date
   }
@@ -88,7 +97,7 @@ export default function (doc, metadata) {
 
   const secondaryElements = doc.querySelectorAll('p, span, div')
   for (const el of secondaryElements) {
-    const date = dateFromContent(el)
+    const date = dateFromContent(el, language)
     if (date) return date
   }
 
