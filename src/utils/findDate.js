@@ -81,14 +81,19 @@ function dateFromContent (element, language) {
 */
 export default function (doc, metadata) {
   const language = doc.documentElement.lang.toLowerCase() || 'en'
-  const priorityElements = doc.querySelectorAll('time, [datetime], [itemprop~=datePublished], [itemprop~=dateCreated]')
+  const priorityElements = doc.querySelectorAll(`
+    time,
+    [datetime],
+    [itemprop~=datePublished],
+    [itemprop~=dateCreated],
+    abbr.published`
+  )
   for (const el of priorityElements) {
     const date =
           el.getAttribute('datetime')
        || el.getAttribute('content')
        || el.getAttribute('title')
        || dateFromContent(el, language)
-
     if (date) return date
   }
 
