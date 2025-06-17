@@ -68,7 +68,8 @@ export default (document, entry) => {
     const ldJson = parseJson(ldSchema.textContent.replace(/[\n\r\t]/g, ''))
     if (ldJson && isAllowedLdJsonType(ldJson)) {
       Object.entries(attributeLists).forEach(([key, attr]) => {
-        if (!entry[key] || !ldJson[attr]) {
+        const isEntryAlreadyPopulated = typeof entry[key] !== 'undefined' && entry[key] !== ''
+        if (isEntryAlreadyPopulated || !ldJson[attr]) {
           return
         }
 
