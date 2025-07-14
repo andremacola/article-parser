@@ -1,30 +1,67 @@
 /**
- * Converts a date format to YYYY-MM-DD.
- * Specifically handles the DD/MM/YYYY format for the 'pt-br' language.
- *
- * @param {string} dateString The date in string format, e.g., "05/12/2024".
- * @param {string} language The language code, e.g., "pt-br" or "en".
- * @returns {string} The formatted date as YYYY-MM-DDTHH:mm:ss.
- */
+* Converts a date format to YYYY-MM-DD.
+* Supported formats:
+* - "DD de MMMM de YYYY" (e.g., "13 de julho de 2025") for pt-br.
+* - "YYYY-MM-DD"
+* - "DD/MM/YYYY" (for pt-br)
+* - "MM/DD/YYYY" (heuristic for other languages)
+*
+* @param {string} dateString
+* @param {string} language
+* @returns {string|undefined}
+*/
 function convertDateFormat (dateString, language) {
-  const parts = dateString.split('/')
-  if (parts.length !== 3) return dateString
+  // Try parsing pt-br long format first, as it's very specific.
+  if (dateString.includes(' de ')) {
+    const months = {
+      'janeiro': '01', 'fevereiro': '02', 'março': '03', 'abril': '04',
+      'maio': '05', 'junho': '06', 'julho': '07', 'agosto': '08',
+      'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12',
+    }
+    const parts = dateString.toLowerCase().split(' de ')
+    if (parts.length === 3) {
+      const day = parts[0]
+      const monthName = parts[1]
+      const year = parts[2]
+      const month = months[monthName]
 
-  let year, month, day
-
-  if (language === 'pt-br') {
-    [day, month, year] = parts
-  } else {
-    if (parseInt(parts[0]) > 12) {
-      [day, month, year] = parts
-    } else {
-      [month, day, year] = parts
+      if (day && month && year && year.length === 4) {
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`
+      }
     }
   }
 
-  year = year.length === 2 ? '20' + year : year
+  // Handle slash-separated dates
+  if (dateString.includes('/')) {
+    const parts = dateString.split('/')
+    if (parts.length === 3) {
+      let year, month, day
 
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`
+      if (language === 'pt-br') {
+        [day, month, year] = parts
+      } else {
+        [month, day, year] = parts
+      }
+
+      if (year && year.length === 2) {
+        year = '20' + year
+      }
+
+      if (year && month && day) {
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`
+      }
+    }
+  }
+
+  // Handle ISO format YYYY-MM-DD
+  if (dateString.includes('-')) {
+    const parts = dateString.split('-')
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${dateString}T00:00:00`
+    }
+  }
+
+  return undefined
 }
 
 /**
@@ -54,12 +91,19 @@ function dateFromUrl (url) {
 
 /**
 * @param {Element} element
+* @param {string} language
 * @returns {string|undefined}
 */
 function dateFromContent (element, language) {
   const datePatterns = [
-    /\d{4}-\d{2}-\d{2}/,
-    /\d{1,2}\/\d{1,2}\/\d{2,4}/,
+    /\d{4}-\d{2}-\d{2}/, // Pattern for "YYYY-MM-DD"
+    /\d{1,2}\/\d{1,2}\/\d{2,4}/, // Pattern for "DD/MM/YYYY"
+    new RegExp(
+      '\\b\\d{1,2}\\s+de\\s+' +
+        '(?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)' +
+        '\\s+de\\s+\\d{4}\\b',
+      'i'
+    ), // Pattern for "13 de julho de 2025". It can be preceded by the day of the week.
   ]
 
   for (const pattern of datePatterns) {
@@ -100,7 +144,7 @@ export default function (doc, metadata) {
   const urlDate = dateFromUrl(metadata.url)
   if (urlDate) return urlDate
 
-  const secondaryElements = doc.querySelectorAll('p, span, div')
+  const secondaryElements = doc.querySelectorAll('.date-header, p, span, div')
   for (const el of secondaryElements) {
     const date = dateFromContent(el, language)
     if (date) return date

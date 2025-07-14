@@ -11,7 +11,7 @@ import extractMetaData from './extractMetaData.js'
 const keys = 'url shortlink amphtml canonical title description image author source published favicon type'.split(' ')
 
 function isDateString (date) {
-  if (typeof date !== 'string') return false
+  if (typeof date !== 'string' || date.length <= 0) return false
   const d = new Date(date)
   return !isNaN(d.getTime())
 }
@@ -40,10 +40,12 @@ describe('test extractMetaData', () => {
     const html2 = readFileSync('./test-data/regular-article-date-itemprop.html', 'utf8')
     const html3 = readFileSync('./test-data/regular-article-date-url.html', 'utf8')
     const html4 = readFileSync('./test-data/regular-article-date-span.html', 'utf8')
+    const html5 = readFileSync('./test-data/regular-article-date-full-written.html', 'utf8')
     const result1 = extractMetaData(html1)
     const result2 = extractMetaData(html2)
     const result3 = extractMetaData(html3)
     const result4 = extractMetaData(html4)
+    const result5 = extractMetaData(html5)
     assert.ok(isObject(result1))
     assert.ok(isObject(result2))
     assert.ok(isObject(result3))
@@ -56,7 +58,8 @@ describe('test extractMetaData', () => {
     })
     assert.ok(isDateString(result1.published))
     assert.ok(isDateString(result2.published))
-    assert.ok((isDateString(result3.published)))
+    assert.ok(isDateString(result3.published))
     assert.ok(isDateString(result4.published))
+    assert.ok(isDateString(result5.published))
   })
 })
