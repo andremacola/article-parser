@@ -144,7 +144,9 @@ export default function (doc, metadata) {
   const urlDate = dateFromUrl(metadata.url)
   if (urlDate) return urlDate
 
-  const secondaryElements = doc.querySelectorAll('.date-header, p, span, div')
+  // eslint-disable-next-line max-len
+  const secondaryElements = doc.querySelectorAll('.date-header, .date, .entry-date, .entry-time, .post-date, .post-time, .article-date, .article-time, .article-pubdate, .article-pubtime, .article-publishdate, .article-publishtime, .article-createdate, .article-createtime, .article-updatedate, .article-updatetime, .article-modifieddate, .article-modifiedtime, .article-publishtime')
+
   for (const el of secondaryElements) {
     const date = dateFromContent(el, language)
     if (date) return date
