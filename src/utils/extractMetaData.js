@@ -32,7 +32,7 @@ function getMetaContentByNameOrProperty (node, attributeLists) {
  * @param html {string}
  * @returns {{image: string, author: string, amphtml: string, description: string, canonical: string, source: string, published: string, title: string, url: string, shortlink: string, favicon: string, type: string}}
  */
-export default (html) => {
+export default (html, inputUrl = '') => {
   const entry = {
     url: '',
     shortlink: '',
@@ -147,7 +147,7 @@ export default (html) => {
   const metadata = extractLdSchema(doc, entry)
 
   if (!metadata.published) {
-    metadata.published = findDate(doc, metadata) || ''
+    metadata.published = findDate(doc, metadata, inputUrl) || ''
   }
 
   return metadata

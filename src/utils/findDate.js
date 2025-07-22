@@ -123,7 +123,7 @@ function dateFromContent (element, language) {
 * @param {Object} metadata - Article metadata
 * @returns {string} Date string
 */
-export default function (doc, metadata) {
+export default function (doc, metadata, inputUrl) {
   const language = doc.documentElement.lang.toLowerCase() || 'en'
   const priorityElements = doc.querySelectorAll(`
     time,
@@ -141,6 +141,7 @@ export default function (doc, metadata) {
     if (date) return date
   }
 
+  metadata.url = (!metadata.url && inputUrl) ? inputUrl : ''
   const urlDate = dateFromUrl(metadata.url)
   if (urlDate) return urlDate
 
