@@ -39,6 +39,11 @@ export interface ParserOptions {
    * Default: 200
    */
   contentLengthThreshold?: number
+  /**
+   * meta data to help extract article
+   * Default: {}
+   */
+  metaData?: Record<string, string>;
 }
 
 export interface ProxyConfig {
