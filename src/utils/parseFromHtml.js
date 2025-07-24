@@ -30,8 +30,16 @@ const summarize = (desc, txt, threshold, maxlen) => { // eslint-disable-line
 }
 
 export default async (inputHtml, inputUrl = '', parserOptions = {}) => {
+  const {
+    wordsPerMinute = 300,
+    descriptionTruncateLen = 210,
+    descriptionLengthThreshold = 180,
+    contentLengthThreshold = 200,
+    metaData = {},
+  } = parserOptions
+
   const pureHtml = purify(inputHtml)
-  const meta = extractMetaData(pureHtml, inputUrl)
+  const meta = extractMetaData(pureHtml, inputUrl, metaData)
 
   let title = meta.title
 
@@ -47,13 +55,6 @@ export default async (inputHtml, inputUrl = '', parserOptions = {}) => {
     favicon: metaFav,
     type,
   } = meta
-
-  const {
-    wordsPerMinute = 300,
-    descriptionTruncateLen = 210,
-    descriptionLengthThreshold = 180,
-    contentLengthThreshold = 200,
-  } = parserOptions
 
   // gather title
   if (!title) {

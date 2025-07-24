@@ -123,14 +123,11 @@ function dateFromContent (element, language) {
 * @param {Object} metadata - Article metadata
 * @returns {string} Date string
 */
-export default function (doc, metadata, inputUrl = '') {
+export default function (doc, metadata, options = {}) {
   const language = doc.documentElement.lang.toLowerCase() || 'en'
-  const priorityElements = doc.querySelectorAll(`
-    time,
-    [datetime],
-    [itemprop~=datePublished],
-    [itemprop~=dateCreated],
-    abbr.published`
+  const defaultPrimarySelectors = 'time, [datetime], [itemprop~=datePublished], [itemprop~=dateCreated], abbr.published'
+  const primarySelectors = options.primarySelectors + ', ' + defaultPrimarySelectors || defaultPrimarySelectors
+  const priorityElements = doc.querySelectorAll(primarySelectors
   )
   for (const el of priorityElements) {
     const date =
@@ -141,12 +138,13 @@ export default function (doc, metadata, inputUrl = '') {
     if (date) return date
   }
 
-  const url = (!metadata.url && inputUrl) ? inputUrl : metadata.url
-  const urlDate = dateFromUrl(url)
+  const urlDate = metadata.url && dateFromUrl(metadata.url)
   if (urlDate) return urlDate
 
   // eslint-disable-next-line max-len
-  const secondaryElements = doc.querySelectorAll('.date-header, .date, .entry-date, .entry-time, .post-date, .post-time, .article-date, .article-time, .article-pubdate, .article-pubtime, .article-publishdate, .article-publishtime, .article-createdate, .article-createtime, .article-updatedate, .article-updatetime, .article-modifieddate, .article-modifiedtime, .article-publishtime')
+  const defaultSecondarySelectors = '.date-header, .date, .entry-date, .entry-time, .post-date, .post-time, .article-date, .article-time, .article-pubdate, .article-pubtime, .article-publishdate, .article-publishtime, .article-createdate, .article-createtime, .article-updatedate, .article-updatetime, .article-modifieddate, .article-modifiedtime, .article-publishtime'
+  const secondarySelectors = options.secondarySelectors + ', ' + defaultSecondarySelectors || defaultSecondarySelectors
+  const secondaryElements = doc.querySelectorAll(secondarySelectors)
 
   for (const el of secondaryElements) {
     const date = dateFromContent(el, language)
