@@ -43,7 +43,7 @@ export interface ParserOptions {
    * meta data to help extract article
    * Default: {}
    */
-  metaData?: Record<string, string>;
+  metaData?: Record<string, string | string[] | undefined>;
 }
 
 export interface ProxyConfig {
