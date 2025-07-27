@@ -147,7 +147,7 @@ export default function (doc, metadata, options = {}) {
   const secondaryElements = doc.querySelectorAll(secondarySelectors)
 
   for (const el of secondaryElements) {
-    const date = dateFromContent(el, language)
+    const date = dateFromContent(el, options.dateLanguage || language)
     if (date) return date
   }
 
