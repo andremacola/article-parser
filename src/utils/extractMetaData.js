@@ -123,7 +123,6 @@ export default (html, inputUrl = '', options = {}) => {
   }
 
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  entry.title = doc.querySelector('head > title')?.innerText
 
   Array.from(doc.getElementsByTagName('link')).forEach(node => {
     const rel = node.getAttribute('rel')
@@ -145,6 +144,10 @@ export default (html, inputUrl = '', options = {}) => {
   })
 
   const metadata = extractLdSchema(doc, entry)
+
+  if (!metadata.title) {
+    metadata.title = doc.querySelector('head > title')?.innerText || ''
+  }
 
   if (!metadata.url) {
     metadata.url = inputUrl
