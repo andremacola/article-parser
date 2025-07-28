@@ -60,10 +60,10 @@ export default (html, inputUrl = '', options = {}) => {
     'parsely-link',
   ]
   const titleAttrs = [
-    'title',
     'og:title',
-    'twitter:title',
     'parsely-title',
+    'title',
+    'twitter:title',
   ]
   const descriptionAttrs = [
     'description',
@@ -139,7 +139,7 @@ export default (html, inputUrl = '', options = {}) => {
   Array.from(doc.getElementsByTagName('meta')).forEach(node => {
     const result = getMetaContentByNameOrProperty(node, attributeLists)
     const val = result?.content || ''
-    if (val !== '') {
+    if (val !== '' && !entry[result.key]) {
       entry[result.key] = val
     }
   })
