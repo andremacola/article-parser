@@ -5,31 +5,9 @@ import extractLdSchema from './extractLdSchema.js'
 import findDate from './findDate.js'
 
 /**
- * @param {Element} node
- * @param {Object} attributeLists
- * @returns {?{key: string, content: string}}
- */
-function getMetaContentByNameOrProperty (node, attributeLists) {
-  const content = node.getAttribute('content')
-  if (!content) return null
-
-  const property = node
-    .getAttribute('property')?.toLowerCase() ??
-    node.getAttribute('itemprop')?.toLowerCase()
-
-  const name = node.getAttribute('name')?.toLowerCase()
-
-  for (const [key, attrs] of Object.entries(attributeLists)) {
-    if (attrs.includes(property) || attrs.includes(name)) {
-      return { key, content }
-    }
-  }
-
-  return null
-}
-
-/**
  * @param html {string}
+ * @param inputUrl {string}
+ * @param options {object}
  * @returns {{image: string, author: string, amphtml: string, description: string, canonical: string, source: string, published: string, title: string, url: string, shortlink: string, favicon: string, type: string}}
  */
 export default (html, inputUrl = '', options = {}) => {
@@ -48,78 +26,69 @@ export default (html, inputUrl = '', options = {}) => {
     type: '',
   }
 
-  const sourceAttrs = [
-    'application-name',
-    'og:site_name',
-    'twitter:site',
-    'dc.title',
-  ]
-  const urlAttrs = [
-    'og:url',
-    'twitter:url',
-    'parsely-link',
-  ]
-  const titleAttrs = [
-    'og:title',
-    'parsely-title',
-    'title',
-    'twitter:title',
-  ]
-  const descriptionAttrs = [
-    'description',
-    'og:description',
-    'twitter:description',
-    'parsely-description',
-  ]
-  const imageAttrs = [
-    'image',
-    'og:image',
-    'og:image:url',
-    'og:image:secure_url',
-    'twitter:image',
-    'twitter:image:src',
-    'parsely-image-url',
-  ]
-  const authorAttrs = [
-    'author',
-    'creator',
-    'og:creator',
-    'article:author',
-    'twitter:creator',
-    'dc.creator',
-    'parsely-author',
-  ]
-  const publishedTimeAttrs = [
-    'article:published_time',
-    'article:modified_time',
-    'og:updated_time',
-    'dc.date',
-    'dc.date.issued',
-    'dc.date.created',
-    'dc:created',
-    'dcterms.date',
-    'datepublished',
-    'datemodified',
-    'updated_time',
-    'modified_time',
-    'published_time',
-    'release_date',
-    'date',
-    'parsely-pub-date',
-  ]
-  const typeAttrs = [
-    'og:type',
-  ]
-
   const attributeLists = {
-    source: sourceAttrs,
-    url: urlAttrs,
-    title: titleAttrs,
-    description: descriptionAttrs,
-    image: imageAttrs,
-    author: authorAttrs,
-    published: publishedTimeAttrs,
-    type: typeAttrs,
+    source: [
+      'application-name',
+      'og:site_name',
+      'twitter:site',
+      'dc.title',
+    ],
+    url: [
+      'og:url',
+      'twitter:url',
+      'parsely-link',
+    ],
+    title: [
+      'og:title',
+      'twitter:title',
+      'parsely-title',
+      'title',
+    ],
+    description: [
+      'og:description',
+      'twitter:description',
+      'parsely-description',
+      'description',
+    ],
+    image: [
+      'og:image',
+      'og:image:url',
+      'og:image:secure_url',
+      'twitter:image',
+      'twitter:image:src',
+      'parsely-image-url',
+      'image',
+    ],
+    author: [
+      'author',
+      'creator',
+      'og:creator',
+      'article:author',
+      'twitter:creator',
+      'dc.creator',
+      'parsely-author',
+    ],
+    published: [
+      'article:published_time',
+      'article:modified_time',
+      'og:updated_time',
+      'dc.date',
+      'dc.date.issued',
+      'dc.date.created',
+      'dc:created',
+      'dcterms.date',
+      'datepublished',
+      'datemodified',
+      'updated_time',
+      'modified_time',
+      'published_time',
+      'release_date',
+      'date',
+      'parsely-pub-date',
+    ],
+    type: [
+      'og:type',
+    ],
   }
 
   const doc = new DOMParser().parseFromString(html, 'text/html')
@@ -128,20 +97,29 @@ export default (html, inputUrl = '', options = {}) => {
     const rel = node.getAttribute('rel')
     const href = node.getAttribute('href')
     if (rel && href) {
-      entry[rel] = href
+      if (!entry[rel] || rel === 'canonical') {
+        entry[rel] = href
+      }
       if (rel === 'icon' || rel === 'shortcut icon') {
         entry.favicon = href
       }
     }
   })
 
-  Array.from(doc.getElementsByTagName('meta')).forEach(node => {
-    const result = getMetaContentByNameOrProperty(node, attributeLists)
-    const val = result?.content || ''
-    if (val !== '' && !entry[result.key]) {
-      entry[result.key] = val
+  for (const [key, attrList] of Object.entries(attributeLists)) {
+    for (const attr of attrList) {
+      const selector = `meta[name='${attr}'], meta[property='${attr}'], meta[itemprop='${attr}']`
+      const node = doc.querySelector(selector)
+
+      if (node) {
+        const content = node.getAttribute('content')
+        if (content) {
+          entry[key] = content
+          break
+        }
+      }
     }
-  })
+  }
 
   const metadata = extractLdSchema(doc, entry)
 
