@@ -107,12 +107,18 @@ export default (html, inputUrl = '', options = {}) => {
   })
 
   for (const [key, attrList] of Object.entries(attributeLists)) {
+    if (entry[key]) {
+      continue
+    }
+
     for (const attr of attrList) {
       const selector = `meta[name='${attr}'], meta[property='${attr}'], meta[itemprop='${attr}']`
-      const node = doc.querySelector(selector)
+      const nodes = doc.querySelectorAll(selector)
 
-      if (node) {
-        const content = node.getAttribute('content')
+      if (nodes.length > 0) {
+        const lastNode = nodes[nodes.length - 1]
+        const content = lastNode.getAttribute('content')
+
         if (content) {
           entry[key] = content
           break
