@@ -137,7 +137,7 @@ export default (html, inputUrl = '', options = {}) => {
     metadata.url = inputUrl
   }
 
-  if (!metadata.published) {
+  if (!metadata.published || metadata.published[0] === '-') {
     metadata.published = findDate(doc, metadata, options) || ''
   }
 
