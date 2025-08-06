@@ -57,8 +57,8 @@ function convertDateFormat (dateString, language) {
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`
   }
 
-  // Pattern 3: Slash-separated dates
-  match = normalizedDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/)
+  // Pattern 3: Slash/dot-separated dates
+  match = normalizedDate.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})$/)
   if (match) {
     let [, part1, part2, year] = match
     let day, month
@@ -129,6 +129,7 @@ function dateFromContent (element, language) {
     ),
     /\d{4}-\d{2}-\d{2}/, // Pattern for "YYYY-MM-DD"
     /\d{1,2}\/\d{1,2}\/\d{2,4}/, // Pattern for "DD/MM/YYYY"
+    /\d{1,2}.\d{1,2}.\d{2,4}/, // Pattern for "DD.MM.YYYY"
     new RegExp( // Pattern for "julho 22, 2025"
       '\\b(?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)' +
       '\\s+\\d{1,2},\\s+\\d{4}\\b',
@@ -191,7 +192,7 @@ export default function (doc, metadata, options = {}) {
   if (urlDate) return urlDate
 
   // eslint-disable-next-line max-len
-  const defaultSecondarySelectors = '.date-header, .date, .entry-date, .entry-time, .post-date, .post-time, .article-date, .article-time, .article-pubdate, .article-pubtime, .article-publishdate, .article-publishtime, .article-createdate, .article-createtime, .article-updatedate, .article-updatetime, .article-modifieddate, .article-modifiedtime, .article-publishtime'
+  const defaultSecondarySelectors = '.date-header, .date, .entry-date, .entry-time, .post-date, .posts-date, .post-time, .article-date, .article-time, .article-pubdate, .article-pubtime, .article-publishdate, .article-publishtime, .article-createdate, .article-createtime, .article-updatedate, .article-updatetime, .article-modifieddate, .article-modifiedtime, .article-publishtime'
   const secondarySelectors = options.secondarySelectors + ', ' + defaultSecondarySelectors || defaultSecondarySelectors
   const secondaryElements = doc.querySelectorAll(secondarySelectors)
 
