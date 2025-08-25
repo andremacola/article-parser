@@ -96,15 +96,17 @@ export default async (inputHtml, inputUrl = '', parserOptions = {}) => {
     }
   )
 
-  const content = fns(inputHtml)
+  let content = fns(inputHtml)
 
   if (!content) {
-    return null
+    // return null
+    content = ''
   }
 
   const textContent = stripTags(content)
   if (textContent.length < contentLengthThreshold) {
-    return null
+    // return null
+    content = ''
   }
 
   const description = summarize(
