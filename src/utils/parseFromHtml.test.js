@@ -35,7 +35,9 @@ const cases = [
       desc: 'a webpage with no main article',
       html: readFileSync('./test-data/html-no-article.html', 'utf8'),
     },
-    expectation: null,
+    expectation: (result) => {
+      assert.equal(result.content, '')
+    },
   },
   {
     input: {
@@ -43,7 +45,9 @@ const cases = [
       html: readFileSync('./test-data/html-too-short-article.html', 'utf8'),
       url: 'abcd',
     },
-    expectation: null,
+    expectation: (result) => {
+      assert.equal(result.content, '')
+    },
   },
   {
     input: {

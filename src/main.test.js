@@ -81,7 +81,7 @@ describe('test extract(regular article url)', () => {
         html: readFileSync('./test-data/html-no-article.html', 'utf8'),
       },
       validate: (result) => {
-        assert.equal(result, null)
+        assert.equal(result.content, '')
       },
     },
     {
